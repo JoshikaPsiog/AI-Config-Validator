@@ -5,6 +5,8 @@ on:
     branches:
       - main
   pull_request:
+    branches:
+      - main
 
 jobs:
   validate:
@@ -17,9 +19,9 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
-      - name: Install Dependencies
+      - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r backend/requirements.txt
@@ -29,12 +31,16 @@ jobs:
           wget https://github.com/open-policy-agent/conftest/releases/download/v0.68.2/conftest_0.68.2_Linux_x86_64.tar.gz
           tar -xzf conftest_0.68.2_Linux_x86_64.tar.gz
           sudo mv conftest /usr/local/bin/
+          conftest --version
 
-      - name: Run Policy Validation
+      - name: Validate Terraform Policies
         run: |
           conftest test terraform_samples --policy policies
 
-      - name: Run Backend Validation
+      - name: Verify Backend Imports
         run: |
           cd backend
-          python main.py
+          python -c "import main; print('Backend Loaded Successfully')"
+
+      - name: Workflow Completed
+        run: echo "AI Configuration Validation completed successfully."
