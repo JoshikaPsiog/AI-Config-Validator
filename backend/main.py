@@ -40,7 +40,6 @@ from routes.validate import router as validate_router
 
 from ai.gemini_service import ask_gemini
 from ai.ollama_service import ask_ollama
-
 app = FastAPI(
     title="AI-Driven Configuration Validation System",
     version="1.0"

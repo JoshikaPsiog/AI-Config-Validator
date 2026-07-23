@@ -2,6 +2,9 @@ from fastapi import APIRouter
 import subprocess
 import os
 
+from ai.ollama_service import ask_ollama
+from ai.prompt_builder import build_validation_prompt
+
 router = APIRouter()
 
 # backend folder
@@ -32,7 +35,8 @@ def validate():
         }
 
     file_path = os.path.join(UPLOAD_FOLDER, tf_files[0])
-
+    print("Terraform files:", tf_files)
+    print("Validating:", file_path)
     result = subprocess.run(
         [
             "conftest",
@@ -46,14 +50,23 @@ def validate():
         cwd=PROJECT_ROOT
     )
 
+    # PASS
     if result.returncode == 0:
         return {
             "status": "PASS",
             "output": result.stdout
         }
 
+    # FAIL → Ask Ollama
+    validation_output = result.stdout + "\n" + result.stderr
+
+    prompt = build_validation_prompt(validation_output)
+
+    ai_response = ask_ollama(prompt)
+
     return {
         "status": "FAIL",
         "output": result.stdout,
-        "error": result.stderr
+        "error": result.stderr,
+        "ai_explanation": ai_response
     }

@@ -1,18 +1,20 @@
-def build_prompt(resource_name: str, issue: str):
+def build_validation_prompt(validation_output: str):
 
     return f"""
-You are an Infrastructure as Code security expert.
+You are an AWS Cloud Security Expert.
 
-Resource:
-{resource_name}
+Analyze the following Conftest/Terraform validation result.
 
-Detected Issue:
-{issue}
+For every issue found, provide:
 
-Provide:
+1. Reason for the failure.
+2. Security impact.
+3. Risk Level (Low / Medium / High).
+4. Terraform recommendation to fix it.
 
-1. Explanation
-2. Security Risk
-3. Recommended Terraform Fix
-4. Best Practice
+Keep the explanation simple and professional.
+
+Validation Output:
+
+{validation_output}
 """
