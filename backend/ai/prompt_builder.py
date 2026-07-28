@@ -1,20 +1,40 @@
-def build_validation_prompt(validation_output: str):
+def build_validation_prompt(terraform_code):
 
     return f"""
-You are an AWS Cloud Security Expert.
+You are a Terraform expert.
 
-Analyze the following Conftest/Terraform validation result.
+Analyze the following Terraform code and identify security issues.
 
-For every issue found, provide:
+Terraform Code:
+{terraform_code}
 
-1. Reason for the failure.
-2. Security impact.
-3. Risk Level (Low / Medium / High).
-4. Terraform recommendation to fix it.
+Explain:
+1. Security issues
+2. Why they are risky
+3. Recommended fixes
+"""
 
-Keep the explanation simple and professional.
 
-Validation Output:
+def build_security_prompt(reason):
 
-{validation_output}
+    return f"""
+You are a Senior DevSecOps Engineer.
+
+Analyze the following Conftest policy violation.
+
+Violation:
+{reason}
+
+Respond ONLY in this format:
+
+## Issue
+Explain the problem.
+
+## Risk
+Explain why it is risky.
+
+## Recommended Terraform Fix
+Explain how to fix it.
+
+Keep the response under 150 words.
 """
