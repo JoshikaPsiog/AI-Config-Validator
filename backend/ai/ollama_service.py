@@ -1,6 +1,14 @@
+import os
 import requests
+from dotenv import load_dotenv
 
-OLLAMA_URL = "http://127.0.0.1:11434/api/generate"
+load_dotenv()
+
+OLLAMA_URL = os.getenv(
+    "OLLAMA_URL",
+    "http://127.0.0.1:11434/api/generate"
+)
+
 
 def ask_ollama(prompt: str):
 
@@ -11,6 +19,7 @@ def ask_ollama(prompt: str):
     }
 
     try:
+
         response = requests.post(
             OLLAMA_URL,
             json=payload,
@@ -24,4 +33,5 @@ def ask_ollama(prompt: str):
         return data.get("response", "No response from Ollama.")
 
     except Exception as e:
+
         return f"Ollama Error: {str(e)}"

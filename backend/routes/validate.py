@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 import subprocess
 import os
-
+from ai.groq_service import ask_groq
 from ai.ollama_service import ask_ollama
 from ai.prompt_builder import build_validation_prompt
 
@@ -84,15 +84,22 @@ def validate():
 
             prompt = build_validation_prompt(validation_output)
 
-            ai_response = ask_ollama(prompt)
+            try:
+                ai_response = ask_groq(prompt)
+                ai_provider = "Groq"
+
+            except Exception:
+                ai_response = ask_ollama(prompt)
+                ai_provider = "Ollama"
 
             results.append({
-                "file": tf_file,
-                "status": "FAIL",
-                "output": result.stdout.strip(),
-                "error": result.stderr.strip(),
-                "ai_explanation": ai_response
-            })
+    "file": tf_file,
+    "status": "FAIL",
+    "output": result.stdout.strip(),
+    "error": result.stderr.strip(),
+    "ai_provider": ai_provider,
+    "ai_explanation": ai_response
+})
 
     # Overall status
     overall_status = "PASS" if failed == 0 else "FAIL"

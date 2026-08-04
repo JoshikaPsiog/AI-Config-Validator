@@ -4,8 +4,9 @@ from routes.upload import router as upload_router
 from routes.read import router as read_router
 from routes.validate import router as validate_router
 from fastapi.middleware.cors import CORSMiddleware
-from ai.gemini_service import ask_gemini
+from ai.groq_service import ask_groq
 from ai.ollama_service import ask_ollama
+from routes.recommend import router as recommend_router
 app = FastAPI(
     title="AI-Driven Configuration Validation System",
     version="1.0"
@@ -28,15 +29,17 @@ app.include_router(upload_router)
 app.include_router(read_router)
 app.include_router(validate_router)
 app.include_router(repository_router)
+app.include_router(recommend_router)
 
 @app.get("/ai-test")
 def ai_test():
 
-    answer = ask_gemini(
+    answer = ask_groq(
         "Explain why enabling S3 bucket encryption is important in Terraform."
     )
 
     return {
+        "provider": "Groq",
         "response": answer
     }
 
@@ -49,8 +52,7 @@ def ollama_test():
     )
 
     return {
+        "provider": "Ollama",
         "response": answer
     }
-    return {
-        "response": answer
-    }
+   

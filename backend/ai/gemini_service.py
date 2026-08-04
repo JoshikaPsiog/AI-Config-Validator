@@ -17,10 +17,14 @@ genai.configure(api_key=API_KEY)
 
 model = genai.GenerativeModel("gemini-2.0-flash")
 
+import traceback
+
 
 def ask_gemini(prompt: str):
     try:
         response = model.generate_content(prompt)
         return response.text
+
     except Exception as e:
+        traceback.print_exc()
         return f"Gemini Error: {str(e)}"
