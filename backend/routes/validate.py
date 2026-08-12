@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 import subprocess
 import os
+
 from ai.groq_service import ask_groq
 from ai.ollama_service import ask_ollama
 from ai.prompt_builder import build_validation_prompt
@@ -27,23 +28,26 @@ def validate():
             "message": f"Uploads folder not found: {UPLOAD_FOLDER}"
         }
 
-    # Get all Terraform files
-    tf_files = [f for f in os.listdir(UPLOAD_FOLDER) if f.endswith(".tf")]
+    # Get all IaC files
+    iac_files = [
+        f for f in os.listdir(UPLOAD_FOLDER)
+        if f.endswith(".tf") or f.endswith(".bicep")
+    ]
 
-    if not tf_files:
+    if not iac_files:
         return {
             "status": "ERROR",
-            "message": "No Terraform files found in uploads folder."
+            "message": "No IaC files found in uploads folder."
         }
 
     results = []
     passed = 0
     failed = 0
 
-    # Validate every Terraform file
-    for tf_file in tf_files:
+    # Validate every file
+    for file_name in iac_files:
 
-        file_path = os.path.join(UPLOAD_FOLDER, tf_file)
+        file_path = os.path.join(UPLOAD_FOLDER, file_name)
 
         print(f"Validating: {file_path}")
 
@@ -66,7 +70,7 @@ def validate():
             passed += 1
 
             results.append({
-                "file": tf_file,
+                "file": file_name,
                 "status": "PASS",
                 "output": result.stdout.strip()
             })
@@ -77,9 +81,9 @@ def validate():
             failed += 1
 
             validation_output = (
-                result.stdout.strip() +
-                "\n" +
-                result.stderr.strip()
+                result.stdout.strip()
+                + "\n"
+                + result.stderr.strip()
             )
 
             prompt = build_validation_prompt(validation_output)
@@ -93,20 +97,20 @@ def validate():
                 ai_provider = "Ollama"
 
             results.append({
-    "file": tf_file,
-    "status": "FAIL",
-    "output": result.stdout.strip(),
-    "error": result.stderr.strip(),
-    "ai_provider": ai_provider,
-    "ai_explanation": ai_response
-})
+                "file": file_name,
+                "status": "FAIL",
+                "output": result.stdout.strip(),
+                "error": result.stderr.strip(),
+                "ai_provider": ai_provider,
+                "ai_explanation": ai_response
+            })
 
     # Overall status
     overall_status = "PASS" if failed == 0 else "FAIL"
 
     return {
         "overall_status": overall_status,
-        "total_files": len(tf_files),
+        "total_files": len(iac_files),
         "passed": passed,
         "failed": failed,
         "results": results
