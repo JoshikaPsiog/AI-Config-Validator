@@ -2,6 +2,7 @@ from fastapi import APIRouter
 import subprocess
 import os
 
+from services.bicep_validator import validate_bicep
 from ai.groq_service import ask_groq
 from ai.ollama_service import ask_ollama
 from ai.prompt_builder import build_validation_prompt
@@ -51,31 +52,69 @@ def validate():
 
         print(f"Validating: {file_path}")
 
-        result = subprocess.run(
-            [
-                "conftest",
-                "test",
-                file_path,
-                "--policy",
-                POLICY_FOLDER
-            ],
-            capture_output=True,
-            text=True,
-            cwd=PROJECT_ROOT
-        )
+        # -------------------------------
+        # Terraform Validation
+        # -------------------------------
+        if file_name.endswith(".tf"):
 
+            result = subprocess.run(
+                [
+                    "conftest",
+                    "test",
+                    file_path,
+                    "--policy",
+                    POLICY_FOLDER
+                ],
+                capture_output=True,
+                text=True,
+                cwd=PROJECT_ROOT
+            )
+
+        # -------------------------------
+        # Bicep Validation
+        # -------------------------------
+        elif file_name.endswith(".bicep"):
+
+            bicep_result = validate_bicep(
+                file_path,
+                PROJECT_ROOT
+            )
+
+            class Result:
+                pass
+
+            result = Result()
+
+            if bicep_result["status"] == "PASS":
+                result.returncode = 0
+                result.stdout = bicep_result["output"]
+                result.stderr = ""
+
+            else:
+                result.returncode = 1
+                result.stdout = bicep_result["output"]
+                result.stderr = ""
+
+        else:
+            continue
+
+        # -------------------------------
         # PASS
+        # -------------------------------
         if result.returncode == 0:
 
             passed += 1
 
             results.append({
                 "file": file_name,
+                "type": "Terraform" if file_name.endswith(".tf") else "Bicep",
                 "status": "PASS",
                 "output": result.stdout.strip()
             })
 
+        # -------------------------------
         # FAIL
+        # -------------------------------
         else:
 
             failed += 1
@@ -98,6 +137,7 @@ def validate():
 
             results.append({
                 "file": file_name,
+                "type": "Terraform" if file_name.endswith(".tf") else "Bicep",
                 "status": "FAIL",
                 "output": result.stdout.strip(),
                 "error": result.stderr.strip(),
@@ -105,7 +145,6 @@ def validate():
                 "ai_explanation": ai_response
             })
 
-    # Overall status
     overall_status = "PASS" if failed == 0 else "FAIL"
 
     return {
