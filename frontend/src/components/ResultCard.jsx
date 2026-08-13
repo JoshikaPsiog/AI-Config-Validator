@@ -1,65 +1,144 @@
-import { FileCode, CheckCircle, XCircle } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Chip,
+  Stack,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Paper,
+  Divider,
+} from "@mui/material";
+
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import DescriptionIcon from "@mui/icons-material/Description";
+import SmartToyIcon from "@mui/icons-material/SmartToy";
 
 function ResultCard({ result }) {
+  if (!result) return null;
 
-    if (!result) return null;
+  const cleanOutput = (text) =>
+    text ? text.replace(/\x1B\[[0-9;]*m/g, "") : "";
 
-    return (
+  return (
+    <Stack spacing={3}>
+      {result.results.map((item, index) => (
+        <Card
+          key={index}
+          elevation={3}
+          sx={{
+            borderRadius: 3,
+          }}
+        >
+          <CardContent>
 
-        <div className="results-section">
+            {/* Header */}
 
-            <h2>Validation Results</h2>
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              mb={2}
+            >
 
-            {result.results.map((item, index) => (
+              <Stack direction="row" spacing={2} alignItems="center">
 
-                <div className="result-card" key={index}>
+                <DescriptionIcon color="primary" />
 
-                    <div className="result-header">
+                <div>
+                  <Typography variant="h6" fontWeight="bold">
+                    {item.file}
+                  </Typography>
 
-                        <FileCode size={24} />
-
-                        <h3>{item.file}</h3>
-
-                    </div>
-
-                    <div
-                        className={
-                            item.status === "PASS"
-                                ? "status pass-status"
-                                : "status fail-status"
-                        }
-                    >
-
-                        {item.status === "PASS" ? (
-                            <CheckCircle size={18} />
-                        ) : (
-                            <XCircle size={18} />
-                        )}
-
-                        {item.status}
-
-                    </div>
-
-                    {item.reason && (
-
-                        <div className="reason">
-
-                            <strong>Reason</strong>
-
-                            <p>{item.reason}</p>
-
-                        </div>
-
-                    )}
-
+                  <Chip
+                    label={item.type}
+                    size="small"
+                    color="info"
+                    sx={{ mt: 1 }}
+                  />
                 </div>
 
-            ))}
+              </Stack>
 
-        </div>
+              <Chip
+                label={item.status}
+                color={item.status === "PASS" ? "success" : "error"}
+                sx={{ fontWeight: "bold" }}
+              />
 
-    );
+            </Stack>
 
+            <Divider sx={{ mb: 2 }} />
+
+            {/* Validation Output */}
+
+            <Typography
+              variant="subtitle1"
+              fontWeight="bold"
+              gutterBottom
+            >
+              Validation Output
+            </Typography>
+
+            <Paper
+              variant="outlined"
+              sx={{
+                p: 2,
+                background: "#f8fafc",
+                whiteSpace: "pre-wrap",
+                fontFamily: "Consolas",
+              }}
+            >
+              {cleanOutput(item.output)}
+            </Paper>
+
+            {/* AI Recommendation */}
+
+            {item.ai_explanation && (
+
+              <Accordion sx={{ mt: 3 }}>
+
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                >
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    alignItems="center"
+                  >
+
+                    <SmartToyIcon color="primary" />
+
+                    <Typography fontWeight="bold">
+                      AI Recommendation ({item.ai_provider})
+                    </Typography>
+
+                  </Stack>
+                </AccordionSummary>
+
+                <AccordionDetails>
+
+                  <Typography
+                    sx={{
+                      whiteSpace: "pre-wrap",
+                      lineHeight: 1.8,
+                    }}
+                  >
+                    {item.ai_explanation}
+                  </Typography>
+
+                </AccordionDetails>
+
+              </Accordion>
+
+            )}
+
+          </CardContent>
+        </Card>
+      ))}
+    </Stack>
+  );
 }
 
 export default ResultCard;

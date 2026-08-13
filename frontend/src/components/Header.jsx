@@ -1,10 +1,11 @@
 import { ShieldCheck } from "lucide-react";
+import "./header.css";
 
 function Header() {
   return (
     <header className="header">
       <div className="header-content">
-        <ShieldCheck size={40} className="logo" />
+        <ShieldCheck size={42} className="logo" />
 
         <div>
           <h1>AI Configuration Validator</h1>

@@ -36,11 +36,13 @@ def validate_repository(terraform_files):
         if result.returncode == 0:
 
             results.append(
-                {
-                    "file": relative_file,
-                    "status": "PASS"
-                }
-            )
+    {
+        "file": relative_file,
+        "type": "Terraform",
+        "status": "PASS",
+        "output": "Validation passed successfully."
+    }
+)
 
         else:
 
@@ -52,12 +54,15 @@ def validate_repository(terraform_files):
             ai_response = ask_ollama(prompt)
 
             results.append(
-                {
-                    "file": relative_file,
-                    "status": "FAIL",
-                    "reason": reason,
-                    "ai_explanation": ai_response
-                }
-            )
+    {
+        "file": relative_file,
+        "type": "Terraform",
+        "status": "FAIL",
+        "output": reason,
+        "error": "",
+        "ai_provider": "Ollama",
+        "ai_explanation": ai_response
+    }
+)
 
     return results

@@ -1,34 +1,105 @@
-import { FolderGit2 } from "lucide-react";
+import { useState } from "react";
 
-function RepositoryCard({ result }) {
+import {
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Button,
+  Stack,
+} from "@mui/material";
 
-  if (!result) return null;
+import GitHubIcon from "@mui/icons-material/GitHub";
+
+import { scanRepository } from "../services/api";
+
+function RepositoryCard({ setResult }) {
+
+  const [repoUrl, setRepoUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleScan = async () => {
+
+    if (!repoUrl) {
+      alert("Enter a GitHub repository URL");
+      return;
+    }
+
+    try {
+
+      setLoading(true);
+
+      const response = await scanRepository(repoUrl);
+
+      setResult(response.data);
+
+    } catch (err) {
+
+      console.error(err);
+
+      if (err.response) {
+        alert(JSON.stringify(err.response.data));
+      }
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
+  };
 
   return (
-    <div className="repository-card">
 
-      <div className="repo-header">
-        <FolderGit2 size={28} />
-        <h2>Repository Information</h2>
-      </div>
+    <Card elevation={3} sx={{ borderRadius: 4 }}>
 
-      <div className="repo-body">
+      <CardContent sx={{ p: 4 }}>
 
-        <div className="repo-item">
-          <label>Repository URL</label>
+        <Typography variant="h5" fontWeight="bold">
 
-          <p>{result.repository}</p>
-        </div>
+          GitHub Repository Scanner
 
-        <div className="repo-item">
-          <label>Terraform Files Found</label>
+        </Typography>
 
-          <p>{result.terraform_files_found}</p>
-        </div>
+        <Typography
+          color="text.secondary"
+          sx={{ mb: 3 }}
+        >
 
-      </div>
+          Scan a GitHub repository containing Terraform or Azure Bicep files.
 
-    </div>
+        </Typography>
+
+        <Stack spacing={3}>
+
+          <TextField
+            fullWidth
+            label="Repository URL"
+            value={repoUrl}
+            onChange={(e) =>
+              setRepoUrl(e.target.value)
+            }
+          />
+
+          <Button
+            variant="contained"
+            startIcon={<GitHubIcon />}
+            onClick={handleScan}
+            disabled={loading}
+          >
+
+            {loading
+              ? "Scanning..."
+              : "Scan Repository"}
+
+          </Button>
+
+        </Stack>
+
+      </CardContent>
+
+    </Card>
+
   );
 
 }
