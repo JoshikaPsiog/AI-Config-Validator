@@ -1,28 +1,21 @@
-import os
 import requests
-from dotenv import load_dotenv
-
-load_dotenv()
-
-OLLAMA_URL = os.getenv(
-    "OLLAMA_URL",
-    "http://127.0.0.1:11434/api/generate"
-)
 
 
-def ask_ollama(prompt: str):
+OLLAMA_URL = "http://localhost:11434/api/generate"
+OLLAMA_MODEL = "llama3.1:8b"
 
-    payload = {
-        "model": "llama3.1:8b",
-        "prompt": prompt,
-        "stream": False
-    }
+
+def ask_ollama(prompt):
 
     try:
 
         response = requests.post(
             OLLAMA_URL,
-            json=payload,
+            json={
+                "model": OLLAMA_MODEL,
+                "prompt": prompt,
+                "stream": False
+            },
             timeout=120
         )
 
@@ -30,8 +23,12 @@ def ask_ollama(prompt: str):
 
         data = response.json()
 
-        return data.get("response", "No response from Ollama.")
+        return data.get("response", "").strip()
+
+    except requests.exceptions.RequestException as e:
+
+        return f"Ollama Error: {e}"
 
     except Exception as e:
 
-        return f"Ollama Error: {str(e)}"
+        return f"Ollama Error: {e}"

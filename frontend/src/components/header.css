@@ -1,60 +1,52 @@
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Box,
-  Avatar,
-} from "@mui/material";
-
-import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
-
-function Header() {
-  return (
-    <AppBar
-      position="static"
-      elevation={1}
-      sx={{
-        background: "#ffffff",
-        color: "#111827",
-      }}
-    >
-      <Toolbar sx={{ py: 1 }}>
-
-        <ShieldOutlinedIcon
-          sx={{
-            fontSize: 42,
-            color: "#2563eb",
-            mr: 2,
-          }}
-        />
-
-        <Box sx={{ flexGrow: 1 }}>
-
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: 700,
-            }}
-          >
-            AI Configuration Validator
-          </Typography>
-
-          <Typography
-            variant="body2"
-            color="text.secondary"
-          >
-            Secure Infrastructure Validation using AI
-          </Typography>
-
-        </Box>
-
-        <Avatar sx={{ bgcolor: "#2563eb" }}>
-          J
-        </Avatar>
-
-      </Toolbar>
-    </AppBar>
-  );
+.header {
+  width: 100%;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-export default Header;
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 18px 32px;
+
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo {
+  color: #4f46e5;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.header p {
+  margin: 4px 0 0;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+@media (max-width: 600px) {
+  .header-content {
+    padding: 16px 20px;
+  }
+
+  .header h1 {
+    font-size: 22px;
+  }
+
+  .header p {
+    font-size: 13px;
+  }
+
+  .logo {
+    width: 32px;
+    height: 32px;
+  }
+}
